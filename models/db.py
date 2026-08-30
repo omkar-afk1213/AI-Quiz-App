@@ -28,9 +28,16 @@ def init_db():
         db.executescript(file.read())
 
     from models.user import User
+    from werkzeug.security import generate_password_hash
 
-    if not User.get_by_username("admin"):
-        User.create_admin("admin", "Admin@123")
+    admin_user = User.get_by_username("admin")
+    if not admin_user:
+        User.create_admin("admin", "admin123")
+    else:
+        db.execute(
+            "UPDATE users SET password_hash = ? WHERE username = ?",
+            (generate_password_hash("admin123"), "admin"),
+        )
 
     settings = db.execute("SELECT * FROM ai_settings").fetchone()
     if settings is None:

@@ -21,7 +21,7 @@
             <h3 class="fw-bold question-text mb-4">{{ q.question }}</h3>
             {% for option in q.options %}
               <div class="form-check option-item mb-3">
-                <input class="form-check-input" type="radio" name="question_{{ q_number }}" id="q{{ q_number }}_{{ loop.index0 }}" value="{{ option }}" {% if q_number != q_index %}disabled{% else %}required{% endif %}>
+                <input class="form-check-input" type="radio" name="question_{{ q_number }}" id="q{{ q_number }}_{{ loop.index0 }}" value="{{ option }}">
                 <label class="form-check-label w-100" for="q{{ q_number }}_{{ loop.index0 }}">
                   <span class="option-letter">{{ ['A', 'B', 'C', 'D'][loop.index0] }}</span> {{ option }}
                 </label>
@@ -32,7 +32,12 @@
 
         <div class="d-flex justify-content-between mt-4">
           <a href="{{ url_for('quiz.setup') }}" class="btn btn-outline-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary" id="submitBtn">Submit Quiz</button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" id="prevBtn" {% if q_index == 0 %}style="display:none;"{% endif %}>Previous</button>
+            <button type="button" class="btn btn-primary" id="nextBtn">
+              {% if q_index == total - 1 %}Submit Quiz{% else %}Next Question{% endif %}
+            </button>
+          </div>
         </div>
       </form>
     </div>

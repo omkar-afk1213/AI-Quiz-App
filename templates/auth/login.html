@@ -3,33 +3,64 @@
 {% block title %}Login | AI Quiz{% endblock %}
 
 {% block content %}
-<div class="auth-page d-flex align-items-center justify-content-center">
-  <div class="card auth-card shadow-lg border-0">
-    <div class="card-body p-4 p-md-5">
-      <div class="text-center mb-4">
-        <div class="brand-icon">🧠</div>
-        <h2 class="fw-bold mb-1">AI Quiz</h2>
-        <p class="text-muted mb-0">Welcome back</p>
-      </div>
-      <form method="POST" action="{{ url_for('auth.login') }}">
-        <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" id="username" name="username" class="form-control" required>
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" id="password" name="password" class="form-control" required>
-        </div>
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-          <label class="form-check-label" for="remember_me">Remember me</label>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-      </form>
-      <div class="text-center mt-3">
-        <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Create an account</a>
-      </div>
+<div class="portal-shell">
+  <div class="portal-card">
+    <div class="portal-header">
+      <span class="portal-badge">AI</span>
+      <p class="portal-subtitle">College Quiz Portal</p>
     </div>
+
+    <h1 class="portal-title">QuizGen AI</h1>
+
+    <div class="role-toggle" aria-label="Login type selector">
+      <button type="button" class="toggle-btn {% if login_role == 'admin' %}active{% endif %}" data-role="admin">Admin Login</button>
+      <button type="button" class="toggle-btn {% if login_role == 'user' %}active{% endif %}" data-role="user">User Login</button>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.login') }}" class="portal-form">
+      <input type="hidden" id="loginRole" name="role" value="{{ login_role or 'admin' }}">
+      <div class="mb-3 text-start">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required>
+      </div>
+      <div class="mb-3 text-start">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+      </div>
+      <div class="info-box">
+        <strong>Admin access:</strong> admin / admin123<br>
+        After admin creates a student account, switch to User Login and use that username/password.
+      </div>
+      <button type="submit" class="btn portal-submit-btn w-100" id="loginSubmitButton">
+        {% if login_role == 'user' %}Login as User{% else %}Login as Admin{% endif %}
+      </button>
+    </form>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const roleInput = document.getElementById('loginRole');
+    const submitButton = document.getElementById('loginSubmitButton');
+    const roleButtons = document.querySelectorAll('.toggle-btn');
+
+    function setRole(role) {
+      roleInput.value = role;
+      const isAdmin = role === 'admin';
+      roleButtons.forEach((button) => {
+        const active = button.dataset.role === role;
+        button.classList.toggle('active', active);
+      });
+      submitButton.textContent = isAdmin ? 'Login as Admin' : 'Login as User';
+    }
+
+    roleButtons.forEach((button) => {
+      button.addEventListener('click', function () {
+        setRole(button.dataset.role);
+      });
+    });
+  });
+</script>
 {% endblock %}
