@@ -7,13 +7,14 @@ from models.db import DB_PATH, get_db
 
 
 class User(UserMixin):
-    def __init__(self, id, username, email=None, password_hash="", role="user", is_active=1):
+    def __init__(self, id, username, email=None, password_hash="", role="user", created_at=None, is_active=1):
         self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
         self.role = role
-        self.is_active = is_active
+        self.created_at = created_at
+        self.active = bool(is_active)
 
     @property
     def is_authenticated(self):
@@ -22,6 +23,10 @@ class User(UserMixin):
     @property
     def is_anonymous(self):
         return False
+
+    @property
+    def is_active(self):
+        return self.active
 
     @staticmethod
     def create_user(username, password, email=None, role="user"):
