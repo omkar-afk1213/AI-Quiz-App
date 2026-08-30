@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}History | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 quiz-card p-4">
+  <h2 class="fw-bold mb-4">Quiz History</h2>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Questions</th>
+          <th>Score</th>
+          <th>Percentage</th>
+          <th>AI Model</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if attempts %}
+          {% for attempt in attempts %}
+            <tr>
+              <td>{{ attempt.topic }}</td>
+              <td>{{ attempt.num_questions }}</td>
+              <td>{{ attempt.score }} / {{ attempt.total }}</td>
+              <td>{{ attempt.percentage }}%</td>
+              <td>{{ attempt.ai_model_used or 'gemini' }}</td>
+              <td>{{ attempt.taken_at }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted">No quiz attempts yet.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

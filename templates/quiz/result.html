@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Result | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="text-center mb-4">
+      <div class="score-circle mx-auto">
+        <span>{{ result.score }} / {{ result.total }}</span>
+      </div>
+      <h2 class="mt-3 fw-bold">Quiz Result</h2>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h4 class="fw-bold">Performance Summary</h4>
+        <p class="mb-2"><strong>Topic:</strong> {{ result.topic }}</p>
+        <p class="mb-2"><strong>Average Score:</strong> {{ analysis.avg_score }}%</p>
+        <p class="mb-0"><strong>Recommendation:</strong> {{ analysis.recommendation }}</p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h4 class="fw-bold">Answer Review</h4>
+        {% for item in result.answers %}
+          <div class="review-item {% if item.is_correct %}correct{% else %}incorrect{% endif %} mt-3 p-3 rounded">
+            <p class="mb-1"><strong>Q:</strong> {{ item.question }}</p>
+            <p class="mb-1"><strong>Your answer:</strong> {{ item.user_answer or 'No answer selected' }}</p>
+            <p class="mb-1"><strong>Correct answer:</strong> {{ item.answer }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-center">
+      <a href="{{ url_for('quiz.setup') }}" class="btn btn-primary btn-lg me-2">Take Another Quiz</a>
+      <a href="{{ url_for('quiz.history') }}" class="btn btn-outline-primary btn-lg">View History</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

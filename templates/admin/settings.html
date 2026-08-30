@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 p-4">
+      <h2 class="fw-bold mb-4">AI Settings</h2>
+      <form method="POST" action="{{ url_for('admin.settings') }}">
+        <div class="mb-3">
+          <label for="active_model" class="form-label">Active AI Model</label>
+          <select class="form-select" id="active_model" name="active_model">
+            <option value="gemini" {% if active_model == 'gemini' %}selected{% endif %}>Gemini</option>
+            <option value="openai" {% if active_model == 'openai' %}selected{% endif %}>OpenAI</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="gemini_key" class="form-label">Gemini API Key</label>
+          <input type="text" class="form-control" id="gemini_key" name="gemini_key" placeholder="Optional - stored in environment / DB">
+        </div>
+        <div class="mb-3">
+          <label for="openai_key" class="form-label">OpenAI API Key</label>
+          <input type="text" class="form-control" id="openai_key" name="openai_key" placeholder="Optional - stored in environment / DB">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

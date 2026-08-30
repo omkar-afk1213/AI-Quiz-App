@@ -1,0 +1,119 @@
+:root {
+  --primary: #6d5efc;
+  --primary-dark: #4d3ef0;
+  --secondary: #f3f4f8;
+  --bg-light: #f7f7fb;
+  --success: #1dbf73;
+  --danger: #e74c3c;
+  --text: #1f2937;
+}
+
+body {
+  background: linear-gradient(135deg, #f5f2ff, #eef4ff);
+  color: var(--text);
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.auth-page {
+  min-height: calc(100vh - 120px);
+}
+
+.auth-card {
+  width: min(100%, 430px);
+  border-radius: 22px;
+}
+
+.brand-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--primary), #9d7dff);
+  color: white;
+  font-size: 2.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.quiz-card {
+  border-radius: 22px;
+}
+
+.option-item {
+  padding: 0.8rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+
+.option-item:hover {
+  background: #f8f8ff;
+}
+
+.option-letter {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e9e6ff;
+  color: #4338ca;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.question-text {
+  line-height: 1.5;
+}
+
+.score-circle {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: conic-gradient(var(--success) 0deg 200deg, #e9edf6 200deg 360deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1s ease;
+  position: relative;
+}
+
+.score-circle::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  background: white;
+  border-radius: 50%;
+}
+
+.score-circle span {
+  position: relative;
+  z-index: 1;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.review-item.correct {
+  background: rgba(29, 191, 115, 0.08);
+  border: 1px solid rgba(29, 191, 115, 0.4);
+}
+
+.review-item.incorrect {
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+}
+
+.footer-bar {
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff !important;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}

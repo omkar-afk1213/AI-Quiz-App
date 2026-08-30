@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 quiz-card text-center p-4">
+      <h1 class="display-6 fw-bold">Welcome, {{ username }}!</h1>
+      <p class="lead text-secondary">Ready to test your knowledge with AI-generated questions?</p>
+      <a href="{{ url_for('quiz.setup') }}" class="btn btn-primary btn-lg mt-3">Start Quiz</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

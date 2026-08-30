@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="text-muted">Total Users</h6>
+        <h2 class="fw-bold mb-0">{{ total_users }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="text-muted">Total Quizzes</h6>
+        <h2 class="fw-bold mb-0">{{ total_quizzes }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="text-muted">Average Score</h6>
+        <h2 class="fw-bold mb-0">{{ average_score }}%</h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
