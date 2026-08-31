@@ -26,12 +26,17 @@ def setup():
     if request.method == "POST":
         topic = request.form.get("topic", "").strip()
         count = request.form.get("count", "5")
+        difficulty = request.form.get("difficulty", "medium")
         topic = re.sub(r"<.*?>", "", topic)
         topic = topic[:100]
 
         if not topic:
             flash("Please enter a quiz topic.", "danger")
             return render_template("quiz/setup.html")
+
+        difficulty = str(difficulty or "medium").strip().lower()
+        if difficulty not in {"easy", "medium", "hard"}:
+            difficulty = "medium"
 
         try:
             count = int(count)
@@ -46,10 +51,11 @@ def setup():
 
         session["topic"] = topic
         session["question_count"] = count
+        session["difficulty"] = difficulty
         session["quiz_questions"] = []
 
         try:
-            generated = QuizGenerator.generate(topic, count)
+            generated = QuizGenerator.generate(topic, count, difficulty=difficulty)
             session["quiz_questions"] = generated
             session["quiz_generation_count"] = int(session.get("quiz_generation_count", 0)) + 1
             return redirect(url_for("quiz.take"))
@@ -87,6 +93,7 @@ def submit():
     score = 0
     answers_for_db = []
     topic = session.get("topic", "General")
+    difficulty = session.get("difficulty", "medium")
 
     for index, question in enumerate(questions):
         answer_key = f"question_{index}"
@@ -121,12 +128,14 @@ def submit():
         "score": score,
         "total": total,
         "topic": topic,
+        "difficulty": difficulty,
         "answers": user_answers,
         "attempt_id": attempt_id,
     }
     session.pop("quiz_questions", None)
     session.pop("topic", None)
     session.pop("question_count", None)
+    session.pop("difficulty", None)
     return redirect(url_for("quiz.result"))
 
 

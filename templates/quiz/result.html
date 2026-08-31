@@ -16,6 +16,7 @@
       <div class="card-body">
         <h4 class="fw-bold">Performance Summary</h4>
         <p class="mb-2"><strong>Topic:</strong> {{ result.topic }}</p>
+        <p class="mb-2"><strong>Difficulty:</strong> {{ result.difficulty or 'medium' }}</p>
         <p class="mb-2"><strong>Average Score:</strong> {{ analysis.avg_score }}%</p>
         <p class="mb-0"><strong>Recommendation:</strong> {{ analysis.recommendation }}</p>
       </div>

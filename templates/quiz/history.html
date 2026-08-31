@@ -10,6 +10,7 @@
       <thead>
         <tr>
           <th>Topic</th>
+          <th>Difficulty</th>
           <th>Questions</th>
           <th>Score</th>
           <th>Percentage</th>
@@ -22,6 +23,7 @@
           {% for attempt in attempts %}
             <tr>
               <td>{{ attempt.topic }}</td>
+              <td>{{ attempt.difficulty or 'medium' }}</td>
               <td>{{ attempt.num_questions }}</td>
               <td>{{ attempt.score }} / {{ attempt.total }}</td>
               <td>{{ attempt.percentage }}%</td>
@@ -31,7 +33,7 @@
           {% endfor %}
         {% else %}
           <tr>
-            <td colspan="6" class="text-center text-muted">No quiz attempts yet.</td>
+            <td colspan="7" class="text-center text-muted">No quiz attempts yet.</td>
           </tr>
         {% endif %}
       </tbody>

@@ -6,9 +6,13 @@ from services.ai_service import AIService
 
 class QuizGenerator:
     @staticmethod
-    def generate(topic, count):
+    def generate(topic, count, difficulty="medium"):
+        normalized = str(difficulty or "medium").strip().lower()
+        if normalized not in {"easy", "medium", "hard"}:
+            normalized = "medium"
+
         ai = AIService()
-        questions = ai.generate_questions(topic, count)
+        questions = ai.generate_questions(topic, count, difficulty=normalized)
         cleaned = []
         for item in questions:
             if not isinstance(item, dict):

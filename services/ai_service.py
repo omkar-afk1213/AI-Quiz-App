@@ -41,12 +41,17 @@ class AIService:
                 stripped = stripped[4:].strip()
         return json.loads(stripped)
 
-    def generate_questions(self, topic: str, count: int) -> list[dict]:
+    def generate_questions(self, topic: str, count: int, difficulty: str = "medium") -> list[dict]:
         safe_topic = self._clean_topic(topic)
+        normalized = str(difficulty or "medium").strip().lower()
+        if normalized not in {"easy", "medium", "hard"}:
+            normalized = "medium"
+
         prompt = (
-            f"Generate {count} multiple choice questions about '{safe_topic}'. "
+            f"Generate {count} multiple choice questions about '{safe_topic}' at {normalized} difficulty. "
             "Return ONLY a valid JSON array. Each item must have exactly these fields: "
             '"question": the question text, "options": array of exactly 4 answer choices, "answer": the exact text of the correct option, "explanation": one sentence explaining why it is correct. " '
+            "Ensure the wording and complexity match the selected difficulty level. "
             "Return nothing else, just the JSON array."
         )
 
