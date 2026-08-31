@@ -3,8 +3,10 @@ from pathlib import Path
 
 from flask import current_app, g
 
+from config import Config
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "quiz.db"
+DB_PATH = Path(Config.DATABASE_PATH)
 SCHEMA_PATH = BASE_DIR / "database" / "schema.sql"
 
 

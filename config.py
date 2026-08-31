@@ -13,7 +13,7 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    DATABASE_PATH = BASE_DIR / "quiz.db"
+    DATABASE_PATH = Path(os.getenv("DATABASE_PATH", BASE_DIR / "quiz.db"))
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     ADMIN_USERNAME = "admin"

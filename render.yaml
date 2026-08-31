@@ -4,9 +4,15 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
+    disk:
+      name: quizdb
+      mountPath: /var/lib/quizapp
+      sizeGB: 1
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: DATABASE_PATH
+        value: /var/lib/quizapp/quiz.db
       - key: GEMINI_API_KEY
         sync: false
       - key: OPENAI_API_KEY
