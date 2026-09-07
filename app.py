@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, url_for
 from flask_login import LoginManager, current_user
 
 from config import Config
-from models.db import init_db
+from models.db import close_db, init_db
 from models.user import User
 from routes.admin import admin_bp
 from routes.auth import auth_bp
@@ -39,6 +39,12 @@ def forbidden_error(error):
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(quiz_bp, url_prefix="/quiz")
+app.teardown_appcontext(close_db)
+
+
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
 
 with app.app_context():
     init_db()

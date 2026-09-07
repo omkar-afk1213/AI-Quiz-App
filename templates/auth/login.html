@@ -35,6 +35,9 @@
         {% if login_role == 'user' %}Login as User{% else %}Login as Admin{% endif %}
       </button>
     </form>
+    <div class="text-center mt-3">
+      <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+    </div>
   </div>
 </div>
 {% endblock %}

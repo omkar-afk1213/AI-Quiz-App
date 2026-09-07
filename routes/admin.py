@@ -38,6 +38,11 @@ def dashboard():
 @admin_bp.route("/users", methods=["GET", "POST"])
 @admin_required
 def users():
+    try:
+        page = max(int(request.args.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+    per_page = 10
     if request.method == "POST":
         action = request.form.get("action")
         if action == "create":
@@ -56,8 +61,26 @@ def users():
                 User.delete_user(int(user_id))
                 flash("User deleted.", "success")
 
-    users_list = User.get_all()
-    return render_template("admin/users.html", users=users_list)
+    users_list = User.get_all(page, per_page)
+    total_users = User.count_all()
+    total_pages = max((total_users + per_page - 1) // per_page, 1)
+    return render_template("admin/users.html", users=users_list, page=page, total_pages=total_pages)
+
+
+@admin_bp.route("/attempts")
+@admin_required
+def attempts():
+    try:
+        page = max(int(request.args.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+    per_page = 10
+    attempts_list = QuizAttempt.get_all_attempts(page, per_page)
+    for attempt in attempts_list:
+        attempt["percentage"] = round((attempt["score"] / attempt["total"]) * 100, 2) if attempt["total"] else 0
+    total_attempts = QuizAttempt.count_all_attempts()
+    total_pages = max((total_attempts + per_page - 1) // per_page, 1)
+    return render_template("admin/attempts.html", attempts=attempts_list, page=page, total_pages=total_pages)
 
 
 @admin_bp.route("/settings", methods=["GET", "POST"])
@@ -71,14 +94,11 @@ def settings():
 
         if active_model not in {"gemini", "openai"}:
             active_model = "gemini"
+        from services.ai_service import AIService
         if gemini_key:
-            db.execute("UPDATE ai_settings SET active_model = ?, updated_at = datetime('now')", (active_model,))
-            import os
-            os.environ["GEMINI_API_KEY"] = gemini_key
+            AIService.save_api_key("gemini", gemini_key)
         if openai_key:
-            db.execute("UPDATE ai_settings SET active_model = ?, updated_at = datetime('now')", (active_model,))
-            import os
-            os.environ["OPENAI_API_KEY"] = openai_key
+            AIService.save_api_key("openai", openai_key)
         db.execute("UPDATE ai_settings SET active_model = ?, updated_at = datetime('now')", (active_model,))
         db.commit()
         flash("AI settings saved.", "success")

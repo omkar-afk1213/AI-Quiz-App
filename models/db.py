@@ -12,6 +12,7 @@ SCHEMA_PATH = BASE_DIR / "database" / "schema.sql"
 
 def get_db():
     if "db" not in g:
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         g.db = conn
@@ -25,9 +26,13 @@ def close_db(exception=None):
 
 
 def init_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB_PATH)
     with open(SCHEMA_PATH, "r", encoding="utf-8") as file:
         db.executescript(file.read())
+        columns = {row[1] for row in db.execute("PRAGMA table_info(quiz_attempts)").fetchall()}
+        if "difficulty" not in columns:
+            db.execute("ALTER TABLE quiz_attempts ADD COLUMN difficulty TEXT NOT NULL DEFAULT 'medium'")
 
     from models.user import User
     from werkzeug.security import generate_password_hash

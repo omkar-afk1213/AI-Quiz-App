@@ -7,11 +7,11 @@ from models.db import get_db
 
 class QuizAttempt:
     @staticmethod
-    def save_attempt(user_id, topic, num_questions, score, total, ai_model_used, answers):
+    def save_attempt(user_id, topic, difficulty, num_questions, score, total, ai_model_used, answers):
         db = get_db()
         attempt_cursor = db.execute(
-            "INSERT INTO quiz_attempts (user_id, topic, num_questions, score, total, ai_model_used, taken_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))",
-            (user_id, topic, num_questions, score, total, ai_model_used),
+            "INSERT INTO quiz_attempts (user_id, topic, difficulty, num_questions, score, total, ai_model_used, taken_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+            (user_id, topic, difficulty, num_questions, score, total, ai_model_used),
         )
         attempt_id = attempt_cursor.lastrowid
         for item in answers:
@@ -30,13 +30,20 @@ class QuizAttempt:
         return attempt_id
 
     @staticmethod
-    def get_attempts_by_user(user_id):
+    def get_attempts_by_user(user_id, page=1, per_page=10):
         db = get_db()
+        offset = (page - 1) * per_page
         rows = db.execute(
-            "SELECT * FROM quiz_attempts WHERE user_id = ? ORDER BY taken_at DESC",
-            (user_id,),
+            "SELECT * FROM quiz_attempts WHERE user_id = ? ORDER BY taken_at DESC LIMIT ? OFFSET ?",
+            (user_id, per_page, offset),
         ).fetchall()
         return [dict(r) for r in rows]
+
+    @staticmethod
+    def count_attempts_by_user(user_id):
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS count FROM quiz_attempts WHERE user_id = ?", (user_id,)).fetchone()
+        return row["count"] if row else 0
 
     @staticmethod
     def get_attempt_details(attempt_id):
@@ -57,12 +64,20 @@ class QuizAttempt:
         return result
 
     @staticmethod
-    def get_all_attempts():
+    def get_all_attempts(page=1, per_page=10):
         db = get_db()
+        offset = (page - 1) * per_page
         rows = db.execute(
-            "SELECT * FROM quiz_attempts ORDER BY taken_at DESC"
+            "SELECT quiz_attempts.*, users.username FROM quiz_attempts JOIN users ON users.id = quiz_attempts.user_id ORDER BY taken_at DESC LIMIT ? OFFSET ?",
+            (per_page, offset),
         ).fetchall()
         return [dict(r) for r in rows]
+
+    @staticmethod
+    def count_all_attempts():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS count FROM quiz_attempts").fetchone()
+        return row["count"] if row else 0
 
     @staticmethod
     def get_average_score():
@@ -78,7 +93,7 @@ class QuizAttempt:
 
     @staticmethod
     def get_user_result_score(user_id):
-        attempts = QuizAttempt.get_attempts_by_user(user_id)
+        attempts = QuizAttempt.get_attempts_by_user(user_id, page=1, per_page=1000000)
         if not attempts:
             return 0
         return sum(attempt["score"] for attempt in attempts)

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     topic TEXT NOT NULL,
+    difficulty TEXT NOT NULL DEFAULT 'medium',
     num_questions INTEGER NOT NULL,
     score INTEGER NOT NULL,
     total INTEGER NOT NULL,
@@ -34,5 +35,22 @@ CREATE TABLE IF NOT EXISTS attempt_answers (
 CREATE TABLE IF NOT EXISTS ai_settings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     active_model TEXT NOT NULL DEFAULT 'gemini',
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reset_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS ai_credentials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider TEXT NOT NULL UNIQUE CHECK(provider IN ('gemini', 'openai')),
+    encrypted_key TEXT NOT NULL,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

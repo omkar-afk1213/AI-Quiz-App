@@ -10,6 +10,7 @@ The app includes role-based access for administrators and regular users, a quiz 
 - Login, registration, and admin/user role separation
 - SQLite database with auto-initialization on first run
 - Topic-based quiz generation with 5, 10, 15, or 20 questions
+- Easy, medium, and hard difficulty levels with durable attempt history
 - Timed quiz flow with progress tracking
 - Score review with explanation and answer highlights
 - User quiz history and performance analysis
@@ -39,7 +40,7 @@ The app includes role-based access for administrators and regular users, a quiz 
 7. Add GEMINI_API_KEY=your_key_here to .env
 8. python app.py
 9. Open http://localhost:5000
-10. Login with admin / Admin@123
+10. Login with admin / admin123
 
 ## Get Free Gemini API Key
 1. Go to https://aistudio.google.com
@@ -65,7 +66,7 @@ The app includes role-based access for administrators and regular users, a quiz 
 8. Anyone can open the link and view the login page
 
 ## Default Login
-- Admin: username=admin, password=Admin@123
+- Admin: username=admin, password=admin123
 - Create more users from Admin → Users panel
 
 ## Project Structure
@@ -83,3 +84,7 @@ The app includes role-based access for administrators and regular users, a quiz 
 - The default admin account is seeded automatically.
 - API keys are read from environment variables and never hardcoded.
 - If Gemini fails, the app automatically tries OpenAI.
+- If both AI providers fail, difficulty-specific local fallback questions are used.
+- Password reset links are available from the login page; in this demo the link is displayed instead of emailed.
+- User history, administrator users, and administrator attempts are paginated.
+- The `/health` endpoint can be used to verify a deployed service.

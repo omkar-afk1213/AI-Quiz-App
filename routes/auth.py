@@ -68,3 +68,35 @@ def register():
         return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html")
+
+
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    reset_url = None
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        token = User.create_password_reset(username)
+        flash("If that account exists, a password reset link has been created.", "info")
+        if token:
+            reset_url = url_for("auth.reset_password", token=token, _external=True)
+    return render_template("auth/forgot_password.html", reset_url=reset_url)
+
+
+@auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    user = User.get_by_reset_token(token)
+    if not user:
+        flash("This reset link is invalid or expired.", "danger")
+        return redirect(url_for("auth.forgot_password"))
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+        if len(password) < 6:
+            flash("Password must contain at least 6 characters.", "danger")
+        elif password != confirm:
+            flash("Passwords do not match.", "danger")
+        else:
+            User.consume_reset_token(token, user.id, password)
+            flash("Password reset successfully. Please log in.", "success")
+            return redirect(url_for("auth.login"))
+    return render_template("auth/reset_password.html")

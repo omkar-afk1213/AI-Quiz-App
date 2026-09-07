@@ -39,5 +39,16 @@
       </tbody>
     </table>
   </div>
+  {% if total_pages > 1 %}
+    <nav aria-label="Quiz history pages">
+      <ul class="pagination justify-content-center mb-0">
+        {% for number in range(1, total_pages + 1) %}
+          <li class="page-item {% if number == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('quiz.history', page=number) }}">{{ number }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
 </div>
 {% endblock %}

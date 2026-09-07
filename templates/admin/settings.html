@@ -17,14 +17,15 @@
         </div>
         <div class="mb-3">
           <label for="gemini_key" class="form-label">Gemini API Key</label>
-          <input type="text" class="form-control" id="gemini_key" name="gemini_key" placeholder="Optional - stored in environment / DB">
+          <input type="password" class="form-control" id="gemini_key" name="gemini_key" placeholder="Leave blank to keep the saved key">
         </div>
         <div class="mb-3">
           <label for="openai_key" class="form-label">OpenAI API Key</label>
-          <input type="text" class="form-control" id="openai_key" name="openai_key" placeholder="Optional - stored in environment / DB">
+          <input type="password" class="form-control" id="openai_key" name="openai_key" placeholder="Leave blank to keep the saved key">
         </div>
         <button type="submit" class="btn btn-primary">Save Settings</button>
       </form>
+      <p class="text-muted small mt-3 mb-0">Entered keys are encrypted before being stored in the application database.</p>
     </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 import html
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
@@ -47,7 +47,7 @@ def setup():
 
         if "quiz_generation_count" not in session:
             session["quiz_generation_count"] = 0
-            session["quiz_generation_window"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            session["quiz_generation_window"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         session["topic"] = topic
         session["question_count"] = count
@@ -122,7 +122,7 @@ def submit():
     if row:
         ai_model = row["active_model"]
 
-    attempt_id = QuizAttempt.save_attempt(current_user.id, topic, total, score, total, ai_model, answers_for_db)
+    attempt_id = QuizAttempt.save_attempt(current_user.id, topic, difficulty, total, score, total, ai_model, answers_for_db)
 
     session["last_result"] = {
         "score": score,
@@ -154,7 +154,14 @@ def result():
 @quiz_bp.route("/history")
 @login_required
 def history():
-    attempts = QuizAttempt.get_attempts_by_user(current_user.id)
+    try:
+        page = max(int(request.args.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+    per_page = 10
+    attempts = QuizAttempt.get_attempts_by_user(current_user.id, page, per_page)
     for attempt in attempts:
         attempt["percentage"] = round((attempt["score"] / attempt["total"]) * 100, 2) if attempt["total"] else 0
-    return render_template("quiz/history.html", attempts=attempts)
+    total_attempts = QuizAttempt.count_attempts_by_user(current_user.id)
+    total_pages = max((total_attempts + per_page - 1) // per_page, 1)
+    return render_template("quiz/history.html", attempts=attempts, page=page, total_pages=total_pages)

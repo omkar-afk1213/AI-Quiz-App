@@ -1,4 +1,7 @@
+import hashlib
+import secrets
 import sqlite3
+from datetime import datetime, timedelta, timezone
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -66,10 +69,17 @@ class User(UserMixin):
         return User(**dict(row))
 
     @staticmethod
-    def get_all():
+    def get_all(page=1, per_page=10):
         db = get_db()
-        rows = db.execute("SELECT * FROM users ORDER BY id ASC").fetchall()
+        offset = (page - 1) * per_page
+        rows = db.execute("SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", (per_page, offset)).fetchall()
         return [User(**dict(row)) for row in rows]
+
+    @staticmethod
+    def count_all():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS count FROM users").fetchone()
+        return row["count"] if row else 0
 
     @staticmethod
     def verify_login(username, password):
@@ -89,6 +99,45 @@ class User(UserMixin):
         db = get_db()
         row = db.execute("SELECT COUNT(*) as count FROM users").fetchone()
         return row["count"] if row else 0
+
+    @staticmethod
+    def create_password_reset(username):
+        user = User.get_by_username(username)
+        if not user:
+            return None
+        token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat()
+        db = get_db()
+        db.execute("UPDATE reset_tokens SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL", (user.id,))
+        db.execute(
+            "INSERT INTO reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
+            (user.id, token_hash, expires_at),
+        )
+        db.commit()
+        return token
+
+    @staticmethod
+    def get_by_reset_token(token):
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        db = get_db()
+        row = db.execute(
+            "SELECT users.* FROM reset_tokens JOIN users ON users.id = reset_tokens.user_id "
+            "WHERE reset_tokens.token_hash = ? AND reset_tokens.used_at IS NULL AND reset_tokens.expires_at > ?",
+            (token_hash, datetime.now(timezone.utc).isoformat()),
+        ).fetchone()
+        return User(**dict(row)) if row else None
+
+    @staticmethod
+    def consume_reset_token(token, user_id, new_password):
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        db = get_db()
+        db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (generate_password_hash(new_password), user_id))
+        db.execute(
+            "UPDATE reset_tokens SET used_at = datetime('now') WHERE token_hash = ? AND user_id = ?",
+            (token_hash, user_id),
+        )
+        db.commit()
 
     @staticmethod
     def get_stats():

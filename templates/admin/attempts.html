@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Attempts | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 quiz-card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">All Quiz Attempts</h2>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">Dashboard</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Topic</th>
+          <th>Difficulty</th>
+          <th>Score</th>
+          <th>Percentage</th>
+          <th>AI Model</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in attempts %}
+          <tr>
+            <td>{{ attempt.username }}</td>
+            <td>{{ attempt.topic }}</td>
+            <td>{{ attempt.difficulty or 'medium' }}</td>
+            <td>{{ attempt.score }} / {{ attempt.total }}</td>
+            <td>{{ attempt.percentage }}%</td>
+            <td>{{ attempt.ai_model_used or 'gemini' }}</td>
+            <td>{{ attempt.taken_at }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="text-center text-muted">No quiz attempts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if total_pages > 1 %}
+    <nav aria-label="Attempt pages">
+      <ul class="pagination justify-content-center mb-0">
+        {% for number in range(1, total_pages + 1) %}
+          <li class="page-item {% if number == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.attempts', page=number) }}">{{ number }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}
