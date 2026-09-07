@@ -109,6 +109,57 @@ class EndToEndTest(unittest.TestCase):
             ).fetchone()["token_hash"]
             self.assertTrue(token_hash)
 
+    def test_invalid_login_and_role_boundaries(self):
+        invalid = self.login(self.username, "wrong-password", "user")
+        self.assertEqual(invalid.status_code, 200)
+        self.assertIn(b"Invalid username or password", invalid.data)
+
+        wrong_role = self.login(self.username, "oldpass123", "admin")
+        self.assertEqual(wrong_role.status_code, 200)
+        self.assertIn(b"Invalid username or password", wrong_role.data)
+
+        admin_login = self.login("admin", "admin123", "admin")
+        self.assertEqual(admin_login.status_code, 302)
+        user_only_page = self.client.get("/quiz/setup")
+        self.assertEqual(user_only_page.status_code, 403)
+
+        self.client.get("/logout")
+        unauthenticated_admin_page = self.client.get("/admin/dashboard")
+        self.assertEqual(unauthenticated_admin_page.status_code, 302)
+        self.assertIn("/login", unauthenticated_admin_page.headers["Location"])
+
+    def test_invalid_reset_token_and_pagination_boundaries(self):
+        invalid_reset = self.client.get("/reset-password/not-a-real-token")
+        self.assertEqual(invalid_reset.status_code, 302)
+        self.assertIn("/forgot-password", invalid_reset.headers["Location"])
+
+        user_login = self.login(self.username, "oldpass123", "user")
+        self.assertEqual(user_login.status_code, 302)
+        history_page = self.client.get("/quiz/history?page=999")
+        self.assertEqual(history_page.status_code, 200)
+        self.assertIn(b"No quiz attempts yet", history_page.data)
+
+        self.client.get("/logout")
+        admin_login = self.login("admin", "admin123", "admin")
+        self.assertEqual(admin_login.status_code, 302)
+        users_page = self.client.get("/admin/users?page=999")
+        self.assertEqual(users_page.status_code, 200)
+        attempts_page = self.client.get("/admin/attempts?page=999")
+        self.assertEqual(attempts_page.status_code, 200)
+
+    def test_all_fallback_difficulty_profiles(self):
+        from services.ai_service import AIService
+
+        service = AIService()
+        profiles = {}
+        with app.app_context():
+            for difficulty in ("easy", "medium", "hard"):
+                questions = service._generate_fallback_questions("Testing", 5, difficulty)
+                self.assertEqual(len(questions), 5)
+                self.assertTrue(all(len(question["options"]) == 4 for question in questions))
+                profiles[difficulty] = questions[0]["question"]
+        self.assertEqual(len(set(profiles.values())), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

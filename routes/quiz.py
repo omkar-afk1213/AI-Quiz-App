@@ -14,14 +14,26 @@ from services.quiz_generator import QuizGenerator
 quiz_bp = Blueprint("quiz", __name__)
 
 
+def user_required(function):
+    from functools import wraps
+
+    @wraps(function)
+    @login_required
+    def wrapper(*args, **kwargs):
+        if current_user.role != "user":
+            return render_template("403.html"), 403
+        return function(*args, **kwargs)
+    return wrapper
+
+
 @quiz_bp.route("/home")
-@login_required
+@user_required
 def home():
     return render_template("quiz/home.html", username=current_user.username)
 
 
 @quiz_bp.route("/setup", methods=["GET", "POST"])
-@login_required
+@user_required
 def setup():
     if request.method == "POST":
         topic = request.form.get("topic", "").strip()
@@ -67,7 +79,7 @@ def setup():
 
 
 @quiz_bp.route("/take")
-@login_required
+@user_required
 def take():
     questions = session.get("quiz_questions", [])
     if not questions:
@@ -82,7 +94,7 @@ def take():
 
 
 @quiz_bp.route("/submit", methods=["POST"])
-@login_required
+@user_required
 def submit():
     questions = session.get("quiz_questions", [])
     if not questions:
@@ -140,7 +152,7 @@ def submit():
 
 
 @quiz_bp.route("/result")
-@login_required
+@user_required
 def result():
     result_data = session.get("last_result")
     if not result_data:
@@ -152,7 +164,7 @@ def result():
 
 
 @quiz_bp.route("/history")
-@login_required
+@user_required
 def history():
     try:
         page = max(int(request.args.get("page", 1)), 1)
