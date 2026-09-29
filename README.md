@@ -55,15 +55,17 @@ The app includes role-based access for administrators and regular users, a quiz 
 3. Open API Keys and create a new key
 4. Add to .env as OPENAI_API_KEY
 
-## Deploy to Render (Free Public URL)
+## Deploy to Render
 1. Push code to GitHub (free public repo)
-2. Go to render.com and sign up for a free account
+2. Go to render.com and create an account
 3. Click New → Web Service → Connect GitHub repo
-4. Render detects render.yaml automatically
-5. Add GEMINI_API_KEY in Render environment variables
-6. Click Deploy
-7. Your live URL: https://ai-quiz-app.onrender.com
-8. Anyone can open the link and view the login page
+4. Create the service from `render.yaml`; it configures a persistent disk mounted at `/var/lib/quizapp` and sets `DATABASE_PATH` to `/var/lib/quizapp/quiz.db`
+5. Use a Render service plan that supports persistent disks, then verify the disk mount and `DATABASE_PATH` in the service settings
+6. Add `GEMINI_API_KEY` in Render environment variables
+7. Click Deploy
+8. Anyone can open the service URL and view the login page
+
+SQLite data stored on a Render instance's temporary filesystem can disappear when the instance restarts or is replaced. A browser closing or a user logging out does not delete database rows. If the service was previously running without the persistent disk, attaching one later creates a separate database file; existing data must be migrated to that disk.
 
 ## Default Login
 - Admin: username=admin, password=admin123
@@ -80,7 +82,7 @@ The app includes role-based access for administrators and regular users, a quiz 
 - database/schema.sql — SQLite schema
 
 ## Notes
-- The app auto-creates the SQLite database on first run.
+- The app auto-creates the SQLite database on first run. On Render, `DATABASE_PATH` must point inside the mounted persistent disk for users and quiz attempts to survive instance restarts.
 - The default admin account is seeded automatically.
 - API keys are read from environment variables and never hardcoded.
 - If Gemini fails, the app automatically tries OpenAI.
