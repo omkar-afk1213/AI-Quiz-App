@@ -17,7 +17,7 @@ def main():
     for name, url in checks:
         try:
             status, body = fetch(url)
-            expected = '"status"' in body if name == "health" else "QuizGen AI" in body
+            expected = '"status"' in body if name == "health" else "AI Based Quiz Application" in body
             result = "PASS" if status == 200 and expected else "FAIL"
             print(f"{result} {name}: HTTP {status}")
             failed = failed or result == "FAIL"
