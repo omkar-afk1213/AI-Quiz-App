@@ -7,6 +7,9 @@
   <div class="col-lg-6">
     <div class="card shadow-sm border-0 quiz-card p-4">
       <h2 class="fw-bold mb-4">Create a Quiz</h2>
+      <div class="alert alert-info" role="note">
+        You need at least 30% to pass. Scores below 30% will be marked as Failed.
+      </div>
       <form method="POST" action="{{ url_for('quiz.setup') }}">
         <div class="mb-3">
           <label for="topic" class="form-label">Topic</label>

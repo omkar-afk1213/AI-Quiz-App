@@ -174,7 +174,7 @@ def certificate():
     total = max(int(result_data.get("total") or 0), 1)
     score = int(result_data.get("score") or 0)
     percentage = round((score / total) * 100, 2)
-    award_status = "Pass" if percentage > 30 else "Failed"
+    award_status = "Pass" if percentage >= 30 else "Failed"
     return render_template(
         "quiz/certificate.html",
         result=result_data,
