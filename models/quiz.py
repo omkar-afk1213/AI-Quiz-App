@@ -68,7 +68,9 @@ class QuizAttempt:
         db = get_db()
         offset = (page - 1) * per_page
         rows = db.execute(
-            "SELECT quiz_attempts.*, users.username FROM quiz_attempts JOIN users ON users.id = quiz_attempts.user_id ORDER BY taken_at DESC LIMIT ? OFFSET ?",
+            "SELECT quiz_attempts.*, COALESCE(users.username, 'Deleted user') AS username "
+            "FROM quiz_attempts LEFT JOIN users ON users.id = quiz_attempts.user_id "
+            "ORDER BY taken_at DESC LIMIT ? OFFSET ?",
             (per_page, offset),
         ).fetchall()
         return [dict(r) for r in rows]

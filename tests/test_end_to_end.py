@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from app import app
 from models.db import get_db
+from models.quiz import QuizAttempt
 from models.user import User
 
 
@@ -159,6 +160,65 @@ class EndToEndTest(unittest.TestCase):
                 self.assertTrue(all(len(question["options"]) == 4 for question in questions))
                 profiles[difficulty] = questions[0]["question"]
         self.assertEqual(len(set(profiles.values())), 3)
+
+    def test_fallback_questions_are_not_identical_each_time(self):
+        from services.ai_service import AIService
+
+        service = AIService()
+        first_batch = service._generate_fallback_questions("Testing", 5, "medium")
+        second_batch = service._generate_fallback_questions("Testing", 5, "medium")
+        self.assertNotEqual(first_batch, second_batch)
+
+    def test_fallback_questions_are_topic_specific(self):
+        from services.ai_service import AIService
+
+        service = AIService()
+        python_questions = service._generate_fallback_questions("Python", 5, "medium")
+        biology_questions = service._generate_fallback_questions("Biology", 5, "medium")
+        python_text = {question["question"].replace("Python", "TOPIC") for question in python_questions}
+        biology_text = {question["question"].replace("Biology", "TOPIC") for question in biology_questions}
+        self.assertTrue(python_text.isdisjoint(biology_text))
+
+    def test_certificate_page_uses_username_and_score(self):
+        self.client.post("/login", data={"username": self.username, "password": "oldpass123", "role": "user"}, follow_redirects=False)
+        self.client.post(
+            "/quiz/setup",
+            data={"topic": "Python Basics", "count": "5", "difficulty": "easy"},
+            follow_redirects=False,
+        )
+        with self.client.session_transaction() as session:
+            questions = session["quiz_questions"]
+        answers = {f"question_{index}": question["answer"] for index, question in enumerate(questions)}
+        self.client.post("/quiz/submit", data=answers, follow_redirects=False)
+
+        certificate_response = self.client.get("/quiz/certificate")
+        self.assertEqual(certificate_response.status_code, 200)
+        self.assertIn(self.username.encode("utf-8"), certificate_response.data)
+        self.assertIn(b"Certificate", certificate_response.data)
+
+    def test_admin_attempts_include_deleted_users(self):
+        self.client.post("/login", data={"username": self.username, "password": "oldpass123", "role": "user"}, follow_redirects=False)
+        self.client.post(
+            "/quiz/setup",
+            data={"topic": "Audit Testing", "count": "5", "difficulty": "medium"},
+            follow_redirects=False,
+        )
+        with self.client.session_transaction() as session:
+            questions = session["quiz_questions"]
+        answers = {f"question_{index}": question["answer"] for index, question in enumerate(questions)}
+        self.client.post("/quiz/submit", data=answers, follow_redirects=False)
+        self.client.get("/logout")
+
+        with app.app_context():
+            user = User.get_by_username(self.username)
+            user_id = user.id
+            User.delete_user(user_id)
+
+        self.client.post("/login", data={"username": "admin", "password": "admin123", "role": "admin"}, follow_redirects=False)
+        with app.app_context():
+            attempts = QuizAttempt.get_all_attempts(page=1, per_page=100000)
+        audit_attempt = next(attempt for attempt in attempts if attempt["topic"] == "Audit Testing")
+        self.assertEqual(audit_attempt["username"], "Deleted user")
 
 
 if __name__ == "__main__":

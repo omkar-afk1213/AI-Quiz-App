@@ -163,6 +163,27 @@ def result():
     return render_template("quiz/result.html", result=result_data, analysis=analysis)
 
 
+@quiz_bp.route("/certificate")
+@user_required
+def certificate():
+    result_data = session.get("last_result")
+    if not result_data:
+        flash("You do not have a recent quiz result to view.", "warning")
+        return redirect(url_for("quiz.home"))
+
+    total = max(int(result_data.get("total") or 0), 1)
+    score = int(result_data.get("score") or 0)
+    percentage = round((score / total) * 100, 2)
+    award_status = "Pass" if percentage >= 50 else "Needs Improvement"
+    return render_template(
+        "quiz/certificate.html",
+        result=result_data,
+        username=current_user.username,
+        percentage=percentage,
+        award_status=award_status,
+    )
+
+
 @quiz_bp.route("/history")
 @user_required
 def history():

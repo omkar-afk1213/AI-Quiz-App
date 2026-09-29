@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow border-0 border-success border-3 mb-4" style="background: linear-gradient(135deg, #f8fff9 0%, #edf9ff 100%);">
+      <div class="card-body p-5 text-center">
+        <div class="mb-3">
+          <span class="badge bg-success-subtle text-success fw-bold px-3 py-2">AI Quiz Certificate</span>
+        </div>
+        <h1 class="display-5 fw-bold text-dark mb-3">Certificate of Completion</h1>
+        <p class="fs-5 text-muted mb-4">This is to certify that</p>
+
+        <h2 class="display-6 fw-bold text-primary mb-3">{{ username }}</h2>
+
+        <p class="fs-5 mb-3">has successfully completed the <strong>{{ result.topic }}</strong> quiz</p>
+        <p class="fs-6 text-secondary mb-4">Difficulty: {{ result.difficulty or 'medium' }}</p>
+
+        <div class="row justify-content-center mb-4">
+          <div class="col-md-6">
+            <div class="border rounded p-3 bg-white shadow-sm">
+              <div class="text-muted small">Score</div>
+              <div class="fs-2 fw-bold text-dark">{{ result.score }} / {{ result.total }}</div>
+              <div class="text-success fw-semibold">{{ percentage }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="fw-semibold text-dark mb-2">Status: {{ award_status }}</p>
+        <p class="text-muted mb-4">Awarded on {{ result.date or 'today' }}</p>
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <a href="{{ url_for('quiz.result') }}" class="btn btn-outline-primary btn-lg">Back to Result</a>
+          <a href="{{ url_for('quiz.setup') }}" class="btn btn-primary btn-lg">Take Another Quiz</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
