@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   const timerBadge = document.getElementById('timerBadge');
+  const questionCounter = document.getElementById('questionCounter');
   const progressBar = document.getElementById('progressBar');
   const form = document.getElementById('quizForm');
   const prevBtn = document.getElementById('prevBtn');
@@ -48,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const currentQuestion = index + 1;
     const total = questionBlocks.length;
+    if (questionCounter) {
+      questionCounter.textContent = `Question ${currentQuestion} / ${total}`;
+    }
     if (progressBar) {
       progressBar.style.width = `${(currentQuestion / total) * 100}%`;
     }
