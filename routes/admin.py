@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
 
 from models.db import get_db
@@ -81,6 +81,58 @@ def attempts():
     total_attempts = QuizAttempt.count_all_attempts()
     total_pages = max((total_attempts + per_page - 1) // per_page, 1)
     return render_template("admin/attempts.html", attempts=attempts_list, page=page, total_pages=total_pages)
+
+
+@admin_bp.route("/attempts/<int:attempt_id>")
+@admin_required
+def attempt_detail(attempt_id):
+    attempt = QuizAttempt.get_attempt_by_id(attempt_id)
+    if not attempt:
+        abort(404)
+
+    answers = QuizAttempt.get_attempt_details(attempt_id)
+    result = {
+        "score": attempt["score"],
+        "total": attempt["total"],
+        "topic": attempt["topic"],
+        "difficulty": attempt["difficulty"],
+        "answers": [
+            {
+                "question": answer["question"],
+                "user_answer": answer["user_answer"],
+                "answer": answer["correct_answer"],
+                "is_correct": answer["is_correct"],
+            }
+            for answer in answers
+        ],
+    }
+    return render_template("admin/attempt_detail.html", attempt=attempt, result=result)
+
+
+@admin_bp.route("/attempts/<int:attempt_id>/certificate")
+@admin_required
+def attempt_certificate(attempt_id):
+    attempt = QuizAttempt.get_attempt_by_id(attempt_id)
+    if not attempt:
+        abort(404)
+
+    total = max(int(attempt["total"] or 0), 1)
+    percentage = round((int(attempt["score"] or 0) / total) * 100, 2)
+    result = {
+        "score": attempt["score"],
+        "total": attempt["total"],
+        "topic": attempt["topic"],
+        "difficulty": attempt["difficulty"],
+        "date": attempt["taken_at"],
+    }
+    return render_template(
+        "quiz/certificate.html",
+        result=result,
+        username=attempt["username"],
+        percentage=percentage,
+        award_status="Pass" if percentage >= 30 else "Failed",
+        admin_attempt_id=attempt_id,
+    )
 
 
 @admin_bp.route("/settings", methods=["GET", "POST"])

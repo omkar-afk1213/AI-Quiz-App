@@ -19,21 +19,23 @@
           <th>Percentage</th>
           <th>AI Model</th>
           <th>Date</th>
+          <th>Details</th>
         </tr>
       </thead>
       <tbody>
         {% for attempt in attempts %}
           <tr>
-            <td>{{ attempt.username }}</td>
+            <td><a href="{{ url_for('admin.attempt_detail', attempt_id=attempt.id) }}">{{ attempt.username }}</a></td>
             <td>{{ attempt.topic }}</td>
             <td>{{ attempt.difficulty or 'medium' }}</td>
             <td>{{ attempt.score }} / {{ attempt.total }}</td>
             <td>{{ attempt.percentage }}%</td>
             <td>{{ attempt.ai_model_used or 'gemini' }}</td>
             <td>{{ attempt.taken_at }}</td>
+            <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.attempt_detail', attempt_id=attempt.id) }}">View</a></td>
           </tr>
         {% else %}
-          <tr><td colspan="7" class="text-center text-muted">No quiz attempts yet.</td></tr>
+          <tr><td colspan="8" class="text-center text-muted">No quiz attempts yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

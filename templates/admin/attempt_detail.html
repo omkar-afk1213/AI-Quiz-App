@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Attempt Details | AI Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">Quiz Attempt</h2>
+        <p class="text-muted mb-0">{{ attempt.username }} · {{ attempt.taken_at }}</p>
+      </div>
+      <a href="{{ url_for('admin.attempts') }}" class="btn btn-outline-primary">All Attempts</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h4 class="fw-bold">Result Summary</h4>
+        <p class="mb-2"><strong>Topic:</strong> {{ attempt.topic }}</p>
+        <p class="mb-2"><strong>Difficulty:</strong> {{ attempt.difficulty or 'medium' }}</p>
+        <p class="mb-0"><strong>Score:</strong> {{ attempt.score }} / {{ attempt.total }}</p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h4 class="fw-bold">Answer Review</h4>
+        {% for item in result.answers %}
+          <div class="review-item {% if item.is_correct %}correct{% else %}incorrect{% endif %} mt-3 p-3 rounded">
+            <p class="mb-1"><strong>Q:</strong> {{ item.question }}</p>
+            <p class="mb-1"><strong>User answer:</strong> {{ item.user_answer or 'No answer selected' }}</p>
+            <p class="mb-0"><strong>Correct answer:</strong> {{ item.answer }}</p>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No saved answer details for this attempt.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <a href="{{ url_for('admin.attempt_certificate', attempt_id=attempt.id) }}" class="btn btn-success">View User Certificate</a>
+  </div>
+</div>
+{% endblock %}

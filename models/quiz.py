@@ -76,6 +76,17 @@ class QuizAttempt:
         return [dict(r) for r in rows]
 
     @staticmethod
+    def get_attempt_by_id(attempt_id):
+        db = get_db()
+        row = db.execute(
+            "SELECT quiz_attempts.*, COALESCE(users.username, 'Deleted user') AS username "
+            "FROM quiz_attempts LEFT JOIN users ON users.id = quiz_attempts.user_id "
+            "WHERE quiz_attempts.id = ?",
+            (attempt_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+    @staticmethod
     def count_all_attempts():
         db = get_db()
         row = db.execute("SELECT COUNT(*) AS count FROM quiz_attempts").fetchone()

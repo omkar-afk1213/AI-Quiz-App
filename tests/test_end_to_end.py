@@ -232,6 +232,41 @@ class EndToEndTest(unittest.TestCase):
         audit_attempt = next(attempt for attempt in attempts if attempt["topic"] == "Audit Testing")
         self.assertEqual(audit_attempt["username"], "Deleted user")
 
+    def test_admin_can_view_saved_attempt_and_certificate(self):
+        with app.app_context():
+            user = User.get_by_username(self.username)
+            attempt_id = QuizAttempt.save_attempt(
+                user.id,
+                "Persisted Result Test",
+                "hard",
+                1,
+                1,
+                1,
+                "gemini",
+                [{
+                    "question": "Which answer is correct?",
+                    "options": ["A", "B"],
+                    "answer": "A",
+                    "user_answer": "A",
+                }],
+            )
+
+        self.client.post("/login", data={"username": "admin", "password": "admin123", "role": "admin"})
+        detail_response = self.client.get(f"/admin/attempts/{attempt_id}")
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertIn(b"Persisted Result Test", detail_response.data)
+        self.assertIn(b"Which answer is correct?", detail_response.data)
+
+        certificate_response = self.client.get(f"/admin/attempts/{attempt_id}/certificate")
+        self.assertEqual(certificate_response.status_code, 200)
+        self.assertIn(self.username.encode("utf-8"), certificate_response.data)
+        self.assertIn(b"Certificate of Completion", certificate_response.data)
+
+        self.client.get("/logout")
+        self.client.post("/login", data={"username": self.username, "password": "oldpass123", "role": "user"})
+        forbidden_response = self.client.get(f"/admin/attempts/{attempt_id}")
+        self.assertEqual(forbidden_response.status_code, 403)
+
 
 if __name__ == "__main__":
     unittest.main()

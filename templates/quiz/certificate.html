@@ -15,7 +15,7 @@
 
         <h2 class="display-6 fw-bold text-primary mb-3">{{ username }}</h2>
 
-        <p class="fs-5 mb-3">has successfully completed the <strong>{{ result.topic }}</strong> quiz</p>
+        <p class="fs-5 mb-3">completed the <strong>{{ result.topic }}</strong> quiz</p>
         <p class="fs-6 text-secondary mb-4">Difficulty: {{ result.difficulty or 'medium' }}</p>
 
         <div class="row justify-content-center mb-4">
@@ -32,8 +32,13 @@
         <p class="text-muted mb-4">Awarded on {{ result.date or 'today' }}</p>
 
         <div class="d-flex justify-content-center gap-2 flex-wrap">
-          <a href="{{ url_for('quiz.result') }}" class="btn btn-outline-primary btn-lg">Back to Result</a>
-          <a href="{{ url_for('quiz.setup') }}" class="btn btn-primary btn-lg">Take Another Quiz</a>
+          {% if admin_attempt_id is defined %}
+            <a href="{{ url_for('admin.attempt_detail', attempt_id=admin_attempt_id) }}" class="btn btn-outline-primary btn-lg">Back to Attempt</a>
+            <a href="{{ url_for('admin.attempts') }}" class="btn btn-primary btn-lg">All Attempts</a>
+          {% else %}
+            <a href="{{ url_for('quiz.result') }}" class="btn btn-outline-primary btn-lg">Back to Result</a>
+            <a href="{{ url_for('quiz.setup') }}" class="btn btn-primary btn-lg">Take Another Quiz</a>
+          {% endif %}
         </div>
       </div>
     </div>
