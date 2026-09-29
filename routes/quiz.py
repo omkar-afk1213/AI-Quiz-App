@@ -90,7 +90,15 @@ def take():
     if q_index >= len(questions):
         q_index = len(questions) - 1
     question = questions[q_index]
-    return render_template("quiz/take.html", questions=questions, question=question, q_index=q_index, total=len(questions))
+    difficulty = session.get("difficulty", "medium")
+    return render_template(
+        "quiz/take.html",
+        questions=questions,
+        question=question,
+        q_index=q_index,
+        total=len(questions),
+        difficulty=difficulty,
+    )
 
 
 @quiz_bp.route("/submit", methods=["POST"])

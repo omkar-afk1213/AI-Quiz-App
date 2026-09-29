@@ -8,19 +8,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!timerBadge || !form) return;
 
-  let timeLeft = 60;
-  const countdown = setInterval(() => {
-    timeLeft -= 1;
+  const difficulty = window.quizState && window.quizState.difficulty;
+  const questionTime = difficulty === 'hard' ? 120 : 60;
+  let timeLeft = questionTime;
+  let countdown;
+
+  function resetTimer() {
+    clearInterval(countdown);
+    timeLeft = questionTime;
     timerBadge.textContent = `${timeLeft}s`;
-    if (timeLeft <= 10) {
-      timerBadge.classList.add('bg-warning');
-      timerBadge.classList.remove('bg-danger');
-    }
-    if (timeLeft <= 0) {
-      clearInterval(countdown);
-      form.submit();
-    }
-  }, 1000);
+    timerBadge.classList.add('bg-danger');
+    timerBadge.classList.remove('bg-warning');
+    countdown = setInterval(() => {
+      timeLeft -= 1;
+      timerBadge.textContent = `${timeLeft}s`;
+      if (timeLeft <= 10) {
+        timerBadge.classList.add('bg-warning');
+        timerBadge.classList.remove('bg-danger');
+      }
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        if (currentIndex < questionBlocks.length - 1) {
+          currentIndex += 1;
+          showQuestion(currentIndex);
+        } else {
+          form.submit();
+        }
+      }
+    }, 1000);
+  }
 
   function showQuestion(index) {
     if (!questionBlocks.length) return;
@@ -45,6 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
       nextBtn.textContent = isLastQuestion ? 'Submit Quiz' : 'Next Question';
       nextBtn.type = isLastQuestion ? 'submit' : 'button';
     }
+
+    resetTimer();
   }
 
   let currentIndex = 0;
