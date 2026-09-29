@@ -196,6 +196,18 @@ class EndToEndTest(unittest.TestCase):
         self.assertIn(self.username.encode("utf-8"), certificate_response.data)
         self.assertIn(b"Certificate", certificate_response.data)
 
+    def test_certificate_passes_only_above_thirty_percent(self):
+        self.client.post("/login", data={"username": self.username, "password": "oldpass123", "role": "user"}, follow_redirects=False)
+        with self.client.session_transaction() as session:
+            session["last_result"] = {"score": 3, "total": 10, "topic": "Threshold Testing", "difficulty": "medium"}
+        exactly_thirty = self.client.get("/quiz/certificate")
+        self.assertIn(b"Status: Failed", exactly_thirty.data)
+
+        with self.client.session_transaction() as session:
+            session["last_result"] = {"score": 31, "total": 100, "topic": "Threshold Testing", "difficulty": "medium"}
+        above_thirty = self.client.get("/quiz/certificate")
+        self.assertIn(b"Status: Pass", above_thirty.data)
+
     def test_admin_attempts_include_deleted_users(self):
         self.client.post("/login", data={"username": self.username, "password": "oldpass123", "role": "user"}, follow_redirects=False)
         self.client.post(

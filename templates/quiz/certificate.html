@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <p class="fw-semibold text-dark mb-2">Status: {{ award_status }}</p>
+        <p class="fw-semibold {% if award_status == 'Pass' %}text-success{% else %}text-danger{% endif %} mb-2">Status: {{ award_status }}</p>
         <p class="text-muted mb-4">Awarded on {{ result.date or 'today' }}</p>
 
         <div class="d-flex justify-content-center gap-2 flex-wrap">
